@@ -1,0 +1,29 @@
+<div style={{width: 1440, height: 8400, background: 'white'}} />
+<div style={{width: 800, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Portfolio Optimization Using Reinforcement-Learning (POUR)</div>
+<div style={{width: 1400, height: 85, background: '#D9D9D9'}} />
+<div style={{width: 400, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Ticker Search</div>
+<div style={{width: 300, height: 75, padding: 16, background: 'black', borderRadius: 10, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: 10, display: 'inline-flex'}}>
+  <div style={{justifyContent: 'center', alignItems: 'center', gap: 9, display: 'inline-flex'}}>
+    <div style={{textAlign: 'right', color: 'white', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '700', lineHeight: 24, wordWrap: 'break-word'}}>Generate Report</div>
+  </div>
+</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
+<div style={{width: 400, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Portfolio Selections</div>
+<div style={{width: 400, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Charts</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
+<div style={{width: 600, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Statistical Summary Metrics</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
+<div style={{width: 800, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Sock Portfolio  Correlation Heatmap</div>
+<div style={{width: 1400, height: 1400, background: '#D9D9D9'}} />
+<div style={{width: 800, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Portfolio Modern Portfolio Theory (MPT) Score</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
+<div style={{width: 1000, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Statistical Summary Metrics (Optimized With  Reinforcement Learning)</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
+<div style={{width: 1200, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Portfolio Correlation Heatmap (Optimized With  Reinforcement Learning)</div>
+<div style={{width: 1400, height: 1400, background: '#D9D9D9'}} />
+<div style={{width: 1200, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Portfolio Modern Portfolio Theory (MPT) Score (Optimized With  Reinforcement Learning)</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
+<div style={{width: 800, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Charts (Optimized With  Reinforcement Learning)</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
+<div style={{width: 1200, height: 62, textAlign: 'center', color: '#18181B', fontSize: 24, fontFamily: 'Plus Jakarta Sans', fontWeight: '800', lineHeight: 62, wordWrap: 'break-word'}}>Stock Portfolio Selections ( Optimized With  Reinforcement Learning)</div>
+<div style={{width: 1400, height: 390, background: '#D9D9D9'}} />
