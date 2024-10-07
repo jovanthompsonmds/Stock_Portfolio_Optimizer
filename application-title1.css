@@ -1,0 +1,30 @@
+.application-title1-container {
+  width: 100%;
+  display: flex;
+  overflow: auto;
+  min-height: 100vh;
+  align-items: center;
+  flex-direction: column;
+}
+.application-title1-application-title {
+  width: 400px;
+  height: 62px;
+  display: flex;
+  position: relative;
+  align-items: flex-start;
+  flex-shrink: 1;
+}
+.application-title1-text1 {
+  color: var(--dl-color-gray-900);
+  width: 400px;
+  height: auto;
+  position: absolute;
+  font-size: 24px;
+  font-style: ExtraBold;
+  text-align: center;
+  font-family: Plus Jakarta Sans;
+  font-weight: 800;
+  line-height: 62px;
+  font-stretch: normal;
+  text-decoration: none;
+}

@@ -1,0 +1,16 @@
+.desktop-background-container {
+  width: 100%;
+  display: flex;
+  overflow: auto;
+  min-height: 100vh;
+  align-items: center;
+  flex-direction: column;
+}
+.desktop-background-dummy-container {
+  width: 100%;
+  height: 900px;
+}
+.desktop-background-desktop-background {
+  width: 1440px;
+  height: 8400px;
+}
