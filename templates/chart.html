@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Charts</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Stock Chart</h1>
+    
+    <!-- Left and right navigation buttons for toggling stocks -->
+    <button id="prev-stock" disabled>&lt; Previous Stock</button>
+    <button id="next-stock" disabled>Next Stock &gt;</button>
+    
+    <!-- Div where the chart will be displayed -->
+    <div id="stock-chart"></div>
+
+    <script>
+        let selectedSymbols = [];
+        let currentSymbolIndex = 0;
+
+        // Function to load stock data for the current symbol
+        function loadStockChart(symbol) {
+            if (!symbol) return;
+            $.ajax({
+                url: '/get_stock_data',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ symbol: symbol }),
+                success: function(data) {
+                    const chartDiv = document.getElementById('stock-chart');
+                    Plotly.newPlot(chartDiv, [{
+                        x: data.dates,
+                        open: data.open,
+                        high: data.high,
+                        low: data.low,
+                        close: data.close,
+                        type: 'candlestick'
+                    }], {
+                        title: `${symbol} Stock Chart`,
+                        xaxis: { title: 'Date' },
+                        yaxis: { title: 'Price' }
+                    });
+                },
+                error: function(response) {
+                    alert('Error: ' + response.responseJSON.error);
+                }
+            });
+        }
+
+        // Populate the selected symbols and set up navigation buttons
+        $.get('/get_symbols', function(symbols) {
+            if (symbols.error) {
+                alert(symbols.error);
+            } else {
+                selectedSymbols = symbols;
+                if (selectedSymbols.length > 0) {
+                    // Initially load the first stock
+                    currentSymbolIndex = 0;
+                    loadStockChart(selectedSymbols[currentSymbolIndex]);
+
+                    // Enable the navigation buttons
+                    $('#prev-stock').prop('disabled', currentSymbolIndex === 0);
+                    $('#next-stock').prop('disabled', currentSymbolIndex === selectedSymbols.length - 1);
+                }
+            }
+        });
+
+        // Previous stock button event handler
+        $('#prev-stock').on('click', function() {
+            if (currentSymbolIndex > 0) {
+                currentSymbolIndex--;
+                loadStockChart(selectedSymbols[currentSymbolIndex]);
+
+                // Enable/disable buttons based on index
+                $('#prev-stock').prop('disabled', currentSymbolIndex === 0);
+                $('#next-stock').prop('disabled', currentSymbolIndex === selectedSymbols.length - 1);
+            }
+        });
+
+        // Next stock button event handler
+        $('#next-stock').on('click', function() {
+            if (currentSymbolIndex < selectedSymbols.length - 1) {
+                currentSymbolIndex++;
+                loadStockChart(selectedSymbols[currentSymbolIndex]);
+
+                // Enable/disable buttons based on index
+                $('#prev-stock').prop('disabled', currentSymbolIndex === 0);
+                $('#next-stock').prop('disabled', currentSymbolIndex === selectedSymbols.length - 1);
+            }
+        });
+    </script>
+</body>
+</html>

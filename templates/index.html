@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Selection and Chart</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        #stock-chart-container, h2#stock-chart-title, #stock-metrics-title, #stock-metrics-container {
+            display: none;
+        }
+        #correlation-heatmap-title, #correlation-heatmap-container {
+            display: none;
+        }
+        #prev-stock, #next-stock {
+            display: none; /* Initially hide the buttons */
+        }
+        #stock-form-container, h2#stock-portfolio-header {
+            display: none; /* Hide the stock portfolio section and form initially */
+        }
+        /* Initially hide the Download Report button */
+        #download-report {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Stock Portfolio Optimizer - Developing an MPT Score System for Enhanced Investment Analysis</h1>
+    <h2>Stock Ticker Search</h2>
+    <input type="text" id="search-bar" placeholder="Search for stock symbol...">
+
+    <div id="stock-list">
+        <!-- Dynamic list of stocks will be displayed here -->
+    </div>
+
+    <!-- Initially hidden "Stock Portfolio Selections" header -->
+    <h2 id="stock-portfolio-header">Stock Portfolio Selections</h2>
+    <!-- Form container that is also initially hidden -->
+    <div id="stock-form-container">
+        <form id="stock-form" action="/submit" method="POST">
+            <div id="selected-stocks">
+                <!-- Selected stocks will appear here -->
+            </div>
+            <p id="error-message" style="color: red;"></p>
+            <button type="submit" id="submit-button" disabled>Generate Report</button>
+        </form>
+    </div>
+
+    <!-- Left and right navigation buttons for toggling stocks -->
+    <h2 id="stock-chart-title">Stock Charts</h2>
+    <button id="prev-stock" disabled>&lt; Previous Stock</button>
+    <button id="next-stock" disabled>Next Stock &gt;</button>
+
+    <!-- Div where the chart will be displayed (hidden initially) -->
+    <div id="stock-chart-container">
+        <div id="stock-chart"></div>
+    </div>
+
+    <!-- Metrics Title and Container (Hidden initially) -->
+    <h2 id="stock-metrics-title">User Selected Stock Statistical Summary Metrics</h2>
+    <div id="stock-metrics-container"></div>
+
+    <!-- Heatmap for correlation -->
+    <h2 id="correlation-heatmap-title">User Selected Portfolio Stock Correlation Heatmap</h2>
+    <div id="correlation-heatmap-container" style="width: 600px; height: 400px;"></div>
+
+    <!-- The Download Report Button -->
+    <button id="download-report">Download Report</button>  
+
+    <script>
+        let selectedSymbols = [];
+        let weightsDict = {};
+        let stockData = {};
+        let stockMetrics = {}; // Store stock metrics here
+        let currentSymbolIndex = 0;
+
+        // Search stock symbols dynamically
+        $('#search-bar').on('input', function() {
+            let query = $(this).val();
+            if (query) {
+                $.ajax({
+                    url: '/search',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ query: query }),
+                    success: function(stocks) {
+                        $('#stock-list').empty();
+                        stocks.forEach(stock => {
+                            if (!selectedSymbols.includes(stock[0])) {
+                                $('#stock-list').append(`
+                                    <label>
+                                        <input type="checkbox" value="${stock[0]}" class="stock-checkbox"> 
+                                        ${stock[0]} (${stock[1]} - ${stock[2]})
+                                    </label><br>
+                                `);
+                            }
+                        });
+                    }
+                });
+            } else {
+                $('#stock-list').empty();
+            }
+        });
+
+        // Handle stock selection and weight input
+        $(document).on('change', '.stock-checkbox', function() {
+            let symbol = $(this).val();
+            if (this.checked) {
+                if (!selectedSymbols.includes(symbol)) {
+                    selectedSymbols.push(symbol);
+                    $('#selected-stocks').append(`
+                        <div id="${symbol}-row">
+                            ${symbol}: <input type="number" class="weight-input" id="${symbol}-weight" min="0" max="100" step="0.01" data-symbol="${symbol}">
+                            <button type="button" class="remove-stock" data-symbol="${symbol}">Remove</button>
+                        </div>
+                    `);
+
+                    // Show the stock portfolio header and form container once a stock is selected
+                    $('#stock-portfolio-header').show();
+                    $('#stock-form-container').show();
+                }
+            } else {
+                removeStock(symbol);
+            }
+            validateWeights();
+        });
+
+        // Remove stock from selection and weightsDict
+        $(document).on('click', '.remove-stock', function() {
+            let symbol = $(this).data('symbol');
+            removeStock(symbol);
+            validateWeights();
+        });
+
+        function removeStock(symbol) {
+            selectedSymbols = selectedSymbols.filter(s => s !== symbol);
+            delete weightsDict[symbol];
+            $(`#${symbol}-row`).remove();
+            $(`.stock-checkbox[value="${symbol}"]`).prop('checked', false);
+
+            // Hide the stock portfolio header and form container if no stocks are selected
+            if (selectedSymbols.length === 0) {
+                $('#stock-portfolio-header').hide();
+                $('#stock-form-container').hide();
+            }
+        }
+
+        // Update weights and validate
+        $(document).on('input', '.weight-input', function() {
+            let symbol = $(this).data('symbol');
+            weightsDict[symbol] = parseFloat($(this).val()) || 0;
+            validateWeights();
+        });
+
+        function validateWeights() {
+            let totalWeight = Object.values(weightsDict).reduce((a, b) => a + b, 0);
+            totalWeight = Math.round(totalWeight * 100) / 100;
+
+            if (totalWeight === 100) {
+                $('#submit-button').prop('disabled', false);
+                $('#error-message').text('');
+            } else {
+                $('#submit-button').prop('disabled', true);
+                $('#error-message').text(`Total weight is ${totalWeight}. Please adjust to 100%.`);
+            }
+        }
+
+        // Handle form submission and display charts and metrics
+        $('#stock-form').on('submit', function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/submit',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    selected_symbols: selectedSymbols,
+                    weights_dict: weightsDict
+                }),
+                success: function(response) {
+                    $('#stock-chart').empty();
+                    stockData = response.stock_data;
+                    stockMetrics = response.stock_metrics; // Capture the stock metrics from the response
+                    const portfolioMetrics = response.portfolio_metrics; // Capture the portfolio metrics from the response
+
+                    if (stockData) {
+                        $('#stock-chart-title').show();
+                        $('#stock-chart-container').show();
+
+                        // Show the navigation buttons and stock metrics section
+                        $('#prev-stock, #next-stock').show();  // Show the buttons
+                        $('#stock-metrics-title').show();
+                        $('#stock-metrics-container').show();
+
+                        // Load the stock chart for the first stock
+                        loadStockChart(selectedSymbols[0]);
+
+                        // Enable left-right navigation buttons
+                        updateNavButtons();
+                        displayStockMetrics(portfolioMetrics);  // Pass the portfolio metrics to the displayStockMetrics function
+
+                        // Load the correlation heatmap
+                        loadCorrelationHeatmap();
+
+                        // Show the "Download Report" button after all content is rendered
+                        $('#download-report').show();
+                    }
+                },
+                error: function(response) {
+                    alert(response.responseJSON.error);
+                }
+            });
+        });
+
+        // Trigger download report on button click
+        $('#download-report').on('click', function() {
+            window.location.href = '/download_report';  // Download the generated PDF report
+        });
+
+        // Function to load the stock chart
+        function loadStockChart(symbol) {
+            const data = stockData[symbol];
+            const chartDiv = document.getElementById('stock-chart');
+            Plotly.newPlot(chartDiv, [{
+                x: data.dates,
+                open: data.open,
+                high: data.high,
+                low: data.low,
+                close: data.close,
+                type: 'candlestick'
+            }], {
+                title: `${symbol} Stock Chart`,
+                xaxis: { title: 'Date' },
+                yaxis: { title: 'Price' }
+            });
+        }
+
+        // Function to display stock metrics for all selected stocks
+        function displayStockMetrics(portfolioMetrics) {
+            const metricsContainer = $('#stock-metrics-container');
+            metricsContainer.empty(); // Clear previous metrics
+
+            // Loop through all selected symbols and display their metrics
+            selectedSymbols.forEach(symbol => {
+                const metrics = stockMetrics[symbol];
+                if (metrics) {
+                    metricsContainer.append(`
+                        <h3>Metrics for ${symbol}:</h3>
+                        <p>Expected Daily Return: ${metrics.expected_return !== null ? metrics.expected_return.toFixed(4) : 'N/A'}</p>
+                        <p>Volatility: ${metrics.volatility !== null ? metrics.volatility.toFixed(4) : 'N/A'}</p>
+                        <p>Beta: ${metrics.beta !== null ? metrics.beta.toFixed(4) : 'N/A'}</p>
+                        <p>Alpha: ${metrics.alpha !== null ? metrics.alpha.toFixed(4) : 'N/A'}</p>
+                        <p>Correlations: ${JSON.stringify(metrics.correlations)}</p>
+                    `);
+                }
+            });
+
+            // Display the portfolio-level metrics
+            if (portfolioMetrics) {
+                metricsContainer.append(`
+                    <h3>Portfolio Metrics:</h3>
+                    <p>User Selected Portfolio Expected Daily Return: ${portfolioMetrics.portfolio_return.toFixed(4)}</p>
+                    <p>User Selected Portfolio Volatility: ${portfolioMetrics.portfolio_volatility.toFixed(4)}</p>
+                    <p>User Selected Portfolio Sharpe Ratio: ${portfolioMetrics.sharpe_ratio.toFixed(4)}</p>
+                    <p>User Selected Portfolio MPT Score: ${portfolioMetrics.mpt_score.toFixed(4)}</p>
+                `);
+            }
+        }
+
+        // Function to fetch and display the correlation heatmap 
+        function loadCorrelationHeatmap() {
+            $.ajax({
+                url: '/calculate_correlation', // Endpoint for correlation matrix
+                method: 'POST',
+                contentType: 'application/json',
+                success: function(response) {
+                    const correlationMatrix = JSON.parse(response.correlation_matrix);
+
+                    // Convert correlation data to plotly format
+                    const data = [{
+                        z: correlationMatrix.data,
+                        x: correlationMatrix.columns,
+                        y: correlationMatrix.index,
+                        type: 'heatmap',
+                        colorscale: 'Viridis'
+                    }];
+
+                    // Layout for the heatmap
+                    const layout = {
+                        title: 'User Selected Portfolio Stock Correlation Heatmap',
+                        xaxis: { title: 'Stocks' },
+                        yaxis: { title: 'Stocks' }
+                    };
+
+                    // Plot the heatmap
+                    Plotly.newPlot('correlation-heatmap-container', data, layout);
+
+                    // Show the heatmap section
+                    $('#correlation-heatmap-title').show();
+                    $('#correlation-heatmap-container').show();
+                },
+                error: function(response) {
+                    alert('Failed to load correlation matrix.');
+                }
+            });
+        }
+
+        // Function to update the navigation buttons based on stock index
+        function updateNavButtons() {
+            $('#prev-stock').prop('disabled', currentSymbolIndex === 0);
+            $('#next-stock').prop('disabled', currentSymbolIndex === selectedSymbols.length - 1);
+        }
+
+        // Event handler for Previous stock button
+        $('#prev-stock').on('click', function() {
+            if (currentSymbolIndex > 0) {
+                currentSymbolIndex--;
+                loadStockChart(selectedSymbols[currentSymbolIndex]);
+                updateNavButtons();
+            }
+        });
+
+        // Event handler for Next stock button
+        $('#next-stock').on('click', function() {
+            if (currentSymbolIndex < selectedSymbols.length - 1) {
+                currentSymbolIndex++;
+                loadStockChart(selectedSymbols[currentSymbolIndex]);
+                updateNavButtons();
+            }
+        });
+    </script>
+</body>
+</html>

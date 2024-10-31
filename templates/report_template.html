@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta information for the HTML document, setting character encoding and viewport for responsiveness -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Report</title> <!-- Title of the page -->
+</head>
+<body>
+    <h1>Portfolio Report</h1> <!-- Main heading for the report -->
+
+    <h2>Selected Stocks</h2> <!-- Subheading for the selected stocks section -->
+    <ul>
+        <!-- Loop through the list of selected stock symbols and display each one as a list item -->
+        {% for symbol in selected_symbols %}
+        <li>{{ symbol }}</li> <!-- Display each selected stock symbol -->
+        {% endfor %}
+    </ul>
+    
+    <h2>Stock Metrics</h2> <!-- Subheading for the stock metrics section -->
+    <ul>
+        <!-- Loop through each stock and its corresponding metrics from the dictionary and display them -->
+        {% for symbol, metrics in stock_metrics_dict.items() %}
+        <li>
+            <!-- Display the stock symbol and its associated metrics: Expected Return, Volatility, Beta, and Alpha -->
+            <strong>{{ symbol }}:</strong> Expected Daily Return: {{ metrics.expected_return }}, Volatility: {{ metrics.volatility }}, Beta: {{ metrics.beta }}, Alpha: {{ metrics.alpha }}
+        </li>
+        {% endfor %}
+    </ul>
+    
+    <h2>Portfolio Metrics</h2> <!-- Subheading for the portfolio-level metrics -->
+    <!-- Display portfolio metrics like expected return, volatility, Sharpe ratio, and MPT score -->
+    <p>Expected Daily Return: {{ portfolio_metrics[0] }}</p>
+    <p>Volatility: {{ portfolio_metrics[1] }}</p>
+    <p>Sharpe Ratio: {{ portfolio_metrics[2] }}</p>
+    <p>MPT Score: {{ mpt_score }}</p>
+</body>
+</html>
