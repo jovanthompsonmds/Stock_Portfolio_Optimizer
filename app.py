@@ -111,7 +111,7 @@ stock_data_dict = {}   # To store stock data
 # 2 - Fetch current Fed interest rate data via API for MPT Score calculations
 
 # Alpha Vantage API key
-api_key = 'DK48KTHGHGHN6AWA'
+api_key = 'your-api-key'
 
 # Function to fetch Federal Funds Rate
 def fetch_federal_funds_rate():
